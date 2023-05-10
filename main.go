@@ -1,5 +1,5 @@
-package mai
+package main
 
 func main() {
-	
+
 }
