@@ -1,22 +1,48 @@
 package main
 
-import "time"
+import (
+	"time"
 
-type Booking struct {
-	ID int `json:"id"`
+	"github.com/google/uuid"
+)
+
+//create booking request
+
+type CreateBookingRequest struct {
 	StartDate string `json:"startDate"`
 	LengthInDays int `json:"lengthInDays"`
-	UserID int `json:"userID"`
-	ProductID int `json:"productID"`
-	StripeInvoiceID int `json:"stripeInvoiceID"`
+	UserID string `json:"userID"`
+	ProductID string `json:"productID"`
+	StripeInvoiceID string `json:"stripeInvoiceID"`
+	Dates []string `json:"dates"`
+}
+
+type UpdateBookingRequest struct {
+	StartDate string `json:"startDate"`
+	LengthInDays int `json:"lengthInDays"`
+	Dates []string `json:"dates"`
 	Fulfilled bool `json:"fulfilled"`
 	Extended bool `json:"extended"`	
+}
+
+type Booking struct {
+	ID string `json:"id"`
+	StartDate string `json:"startDate"`
+	LengthInDays int `json:"lengthInDays"`
+	UserID string `json:"userID"`
+	ProductID string `json:"productID"`
+	StripeInvoiceID string `json:"stripeInvoiceID"`
+	Fulfilled bool `json:"fulfilled"`
+	Extended bool `json:"extended"`	
+	Dates []string `json:"dates"`	
 	CreatedAt time.Time `json:"createdAt"`
 }
 
+func NewBooking(startDate,userId, stripeInvoiceId, productId string,  length int, dates []string ) (*Booking, error) {
+	uuid := uuid.NewString()
 
-func NewBooking(startDate string, stripeInvoiceId,productId, length, userId int ) (*Booking, error) {
 	return &Booking{
+		ID: uuid,
 		StartDate: startDate,
 		LengthInDays: length,
 		UserID: userId,
@@ -24,6 +50,7 @@ func NewBooking(startDate string, stripeInvoiceId,productId, length, userId int 
 		StripeInvoiceID:stripeInvoiceId,
 		Fulfilled: false,
 		Extended: false,
+		Dates: dates,
 		CreatedAt: time.Now().UTC(),
 	}, nil
 }

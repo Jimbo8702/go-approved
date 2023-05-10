@@ -2,14 +2,13 @@ package main
 
 import "database/sql"
 
-
 type Storage interface {
 	CreateBooking(*Booking) error
-	UpdateBooking(*Booking) error
-	DeleteBooking(int) error
+	UpdateBooking(string, *UpdateBookingRequest) error
+	DeleteBooking(string) error
 	GetBookings() ([]*Booking, error)
-	GetBookingsByID(int) (*Booking, error)
-	GetBookingsByUserID() (*Booking, error)
+	GetBookingByID(string) (*Booking, error)
+	GetBookingsByUserID(string) ([]*Booking, error)
 }
 
 type PostgressStore struct {
@@ -39,12 +38,13 @@ func (s *PostgressStore) Init() error {
 
 func (s *PostgressStore) createBookingTable() error {
 	query := `create table if not exists booking (
-		id serial primary key,
+		id varchar(50) primary key,
 		start_date varchar(50),
 		length_in_days serial,
-		user_id serial, 
-		product_id serial,
-		stripe_invoice_id serial,
+		user_id varchar(50), 
+		product_id varchar(50),
+		stripe_invoice_id varchar(50),
+		dates list,
 		fulfilled boolean,
 		extended boolean,
 		created_at timestamp
@@ -57,17 +57,18 @@ func (s *PostgressStore) createBookingTable() error {
 
 func (s *PostgressStore) CreateBooking(book *Booking) error {
 	query :=  `insert into booking
-	(start_date, length_in_days, user_id, product_id, stripe_invoice_id, fulfilled, extended, created_at)
-	values ($1, $2, $3, $4, $5, $6, $7)`
-
+	(id, start_date, length_in_days, user_id, product_id, stripe_invoice_id, dates, fulfilled, extended, created_at)
+	values ($1, $2, $3, $4, $5, $6, $7, $8, $9)`
 
 	_, err := s.db.Query(
 		query, 
+		book.ID,
 		book.StartDate,
 		book.LengthInDays,
 		book.UserID, 
 		book.ProductID,
 		book.StripeInvoiceID, 
+		book.Dates,
 		book.Fulfilled, 
 		book.Extended,
 		book.CreatedAt,
@@ -80,11 +81,11 @@ func (s *PostgressStore) CreateBooking(book *Booking) error {
 	return nil
 }
 
-func (s *PostgressStore) UpdateBooking(*Booking) error {
+func (s *PostgressStore) UpdateBooking(id string, fields *UpdateBookingRequest) error {
 	return nil
 }
 
-func (s *PostgressStore) DeleteBooking(id int) error {
+func (s *PostgressStore) DeleteBooking(id string) error {
 	return nil
 }
 
@@ -92,11 +93,11 @@ func (s *PostgressStore) GetBookings() ([]*Booking, error)  {
 	return nil, nil
 }
 
-func (s *PostgressStore) GetBookingById(id int) (*Booking, error)  {
-	return nil, nil
+func (s *PostgressStore) GetBookingByID(id string) (*Booking, error)  {
+	return  &Booking{}, nil
 }
 
-func (s *PostgressStore) GetBookingsByUserId(id int) ([]*Booking, error)  {
+func (s *PostgressStore) GetBookingsByUserID(id string) ([]*Booking, error)  {
 	return nil, nil
 }
 
